@@ -37,7 +37,6 @@ class AccountForm extends Component {
     }
 
     updateMe() {
-        console.log(this.state);
         this.setState({
             updateButton: 'isLoading'
         });
@@ -168,7 +167,6 @@ class AccountForm extends Component {
 
     handleChange(field) {
         return (event) => {
-            console.log(event.target);
             let newState = {};
             newState[field] = event.target.value;
             this.setState(newState)
