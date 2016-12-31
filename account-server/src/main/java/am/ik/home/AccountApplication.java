@@ -1,14 +1,11 @@
 package am.ik.home;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.Arrays;
 
 import org.apache.catalina.filters.RequestDumperFilter;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -40,7 +37,7 @@ import org.springframework.web.context.annotation.SessionScope;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import am.ik.home.account.*;
+import am.ik.home.account.Account;
 import am.ik.home.client.user.UaaUser;
 
 @SpringBootApplication
@@ -57,57 +54,6 @@ public class AccountApplication {
 	@Bean
 	RequestDumperFilter requestDumperFilter() {
 		return new RequestDumperFilter();
-	}
-
-	@Profile("!cloud")
-	@Bean
-	CommandLineRunner init(AccountRepository accountRepository) {
-		return args -> {
-			if (!accountRepository.findByMemberId("00000000-0000-0000-0000-000000000000")
-					.isPresent()) {
-				accountRepository
-						.save(Arrays
-								.asList(Account.builder()
-										.memberId("00000000-0000-0000-0000-000000000000")
-										.birthDay(LocalDate.of(1984, 4, 12)).emails(
-												Arrays.asList(
-														Email.builder().purpose("プライベート")
-																.emailAddress(
-																		"makingx@example.com")
-																.build(),
-														Email.builder().purpose("仕事")
-																.emailAddress(
-																		"tmaki@example.com")
-																.build()))
-										.addresses(Arrays.asList(Address.builder()
-												.purpose("自宅").postcode("100-8111")
-												.address("東京都千代田区千代田1-1").build(),
-												Address.builder().postcode("106-6108")
-														.purpose("職場")
-														.address("東京都港区六本木6-10-1")
-														.build()))
-										.phones(Arrays.asList(
-												Phone.builder().purpose("iPhone")
-														.phoneNumber("09012345678")
-														.build(),
-												Phone.builder().purpose("実家")
-														.phoneNumber("012034567890")
-														.build()))
-										.attributes(
-												Arrays.asList(
-														Attribute.builder()
-																.attributeName("年金基礎番号")
-																.attributeValue(
-																		"0123456789")
-																.build(),
-														Attribute.builder()
-																.attributeName("個人番号")
-																.attributeValue(
-																		"123456789012")
-																.build()))
-										.build()));
-			}
-		};
 	}
 
 	@Bean
