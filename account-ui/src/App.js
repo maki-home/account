@@ -52,14 +52,20 @@ class App extends Component {
         let accounts = accountClient.findAll()
             .then(accounts => {
                 let ids = accounts.map(a => a.memberId);
-                return memberClient.findByMemberIds(ids)
-                    .then(members => {
-                        let memberMap = _.keyBy(members, m => m.memberId);
-                        return _.sortBy(accounts.map(a => {
-                            a.member = memberMap[a.memberId] || {givenName: null, familyName: null};
-                            return a;
-                        }), [a => a.member.familyName, a => a.member.givenName]);
+                if (_.isEmpty(ids)) {
+                    return new Promise(function (resolve) {
+                        resolve([]);
                     });
+                } else {
+                    return memberClient.findByMemberIds(ids)
+                        .then(members => {
+                            let memberMap = _.keyBy(members, m => m.memberId);
+                            return _.sortBy(accounts.map(a => {
+                                a.member = memberMap[a.memberId] || {givenName: null, familyName: null};
+                                return a;
+                            }), [a => a.member.familyName, a => a.member.givenName]);
+                        });
+                }
             })
             .then(a => {
                 this.setState({accounts: a, loadAccounts: true});
