@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Button, Modal, Label, Input, Panel} from "re-bulma";
+import {Button, Modal, Label, Input, Panel, FormHorizontal, Group} from "re-bulma";
 import _ from "lodash";
 import "./App.css";
 import accountClient from "./client/AccountClient";
@@ -8,7 +8,6 @@ class AccountForm extends Component {
     constructor(props) {
         super(props);
         let account = props.account || {};
-        console.log('account=', account);
         this.state = {
             isOpen: false,
             updateButton: 'isActive',
@@ -29,6 +28,9 @@ class AccountForm extends Component {
         this.addPhone = this.addPhone.bind(this);
         this.removePhone = this.removePhone.bind(this);
         this.handlePhoneChange = this.handlePhoneChange.bind(this);
+        this.addAttribute = this.addAttribute.bind(this);
+        this.removeAttribute = this.removeAttribute.bind(this);
+        this.handleAttributeChange = this.handleAttributeChange.bind(this);
     }
 
     componentDidMount() {
@@ -46,14 +48,17 @@ class AccountForm extends Component {
             phones: this.state.phones,
             attributes: this.state.attributes,
         };
-        console.log(account);
         accountClient.updateMe(account)
             .then(() => this.props.refreshData()
                 .then(() => this.setState({
                     updateButton: 'isActive',
                     isOpen: false,
                 }))
-            );
+            )
+            .catch(error => {
+                console.error('update error!', error);
+                alert('error!');
+            });
     }
 
     formActive() {
@@ -85,20 +90,6 @@ class AccountForm extends Component {
         };
     }
 
-    addAddress() {
-        this.setState({
-            addresses: _.concat(this.state.addresses, {purpose: '', address: '', postcode: ''})
-        });
-    }
-
-    removeAddress(i) {
-        return () => {
-            let addresses = this.state.addresses.filter((a, b) => b !== i);
-            this.setState({
-                addresses: addresses
-            });
-        };
-    }
 
     addPhone() {
         this.setState({
@@ -125,6 +116,21 @@ class AccountForm extends Component {
         };
     }
 
+    addAddress() {
+        this.setState({
+            addresses: _.concat(this.state.addresses, {purpose: '', address: '', postcode: ''})
+        });
+    }
+
+    removeAddress(i) {
+        return () => {
+            let addresses = this.state.addresses.filter((a, b) => b !== i);
+            this.setState({
+                addresses: addresses
+            });
+        };
+    }
+    
     handleAddressChange(field, i) {
         let target = i;
         let address = this.state.addresses[i];
@@ -133,6 +139,31 @@ class AccountForm extends Component {
             address[field] = event.target.value;
             addresses[target] = address;
             this.setState({addresses: addresses});
+        };
+    }
+
+    addAttribute() {
+        this.setState({
+            attributes: _.concat(this.state.attributes, {attributeName: '', attributeValue: ''})
+        });
+    }
+
+    removeAttribute(i) {
+        return () => {
+            let attributes = this.state.attributes.filter((a, b) => b !== i);
+            this.setState({
+                attributes: attributes
+            });
+        };
+    }
+
+    handleAttributeChange(field, i) {
+        let attribute = this.state.attributes[i];
+        return (event) => {
+            let attributes = this.state.attributes;
+            attribute[field] = event.target.value;
+            attributes[i] = attribute;
+            this.setState({attributes: attributes});
         };
     }
 
@@ -210,6 +241,28 @@ class AccountForm extends Component {
                         電話番号: <Input value={p.phoneNumber}
                                      state={this.formActive()}
                                      onChange={this.handlePhoneChange('phoneNumber', i)}/>
+                    </Panel>))}
+                    <Label>
+                        任意項目 <Button size="isSmall"
+                                     color="isSuccess"
+                                     onClick={this.addAttribute}
+                                     state={this.formActive()}>+</Button>
+                    </Label>
+                    {this.state.attributes.map((attr, i) => (<Panel key={i}>
+                        <FormHorizontal>
+                            <Group>
+                                <Input value={attr.attributeName}
+                                       state={this.formActive()}
+                                       onChange={this.handleAttributeChange('attributeName', i)}/>
+                                <Input value={attr.attributeValue}
+                                       state={this.formActive()}
+                                       onChange={this.handleAttributeChange('attributeValue', i)}/>
+                                <Button size="isSmall"
+                                        color="isDanger"
+                                        onClick={this.removeAttribute(i)}
+                                        state={this.formActive()}>-</Button>
+                            </Group>
+                        </FormHorizontal>
                     </Panel>))}
                     <Button color="isPrimary" onClick={this.updateMe} state={this.state.updateButton}>編集</Button>
                 </Modal>

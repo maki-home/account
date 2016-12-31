@@ -41,7 +41,11 @@ class App extends Component {
             .then(() => this.fetch()
                 .then(() => this.setState({
                     initButton: 'isActive'
-                })));
+                })))
+            .catch(error => {
+                console.error('accounts error!', error);
+                alert('error!');
+            });
     }
 
     fetch() {
@@ -62,6 +66,7 @@ class App extends Component {
             })
             .catch(error => {
                 console.error('accounts error!', error);
+                alert('error!');
             });
         let userinfo = userinfoClient.find()
             .then(userinfo => {
@@ -69,6 +74,7 @@ class App extends Component {
             })
             .catch(error => {
                 console.error('userinfo error!', error);
+                alert('error!');
             });
         return axios.all([accounts, userinfo]);
     }
@@ -88,7 +94,6 @@ class App extends Component {
     render() {
         let loaded = this.state.loadAccounts && this.state.loadUserinfo;
         let me = _.find(this.state.accounts, a => a.member.memberId === this.state.userinfo.id);
-        console.log(me);
         let showInit = loaded && !me;
         let accounts = this.state.accounts.map(a => {
             let displayName = a.member ? (a.member.familyName + ' ' + a.member.givenName) : '--';

@@ -22,9 +22,12 @@ class AccountData extends Component {
                 .then(() => {
                         this.props.refreshData();
                     }
-                );
+                )
+                .catch(error => {
+                    console.error('delete error!', error);
+                    alert('error!');
+                });
         }
-
     }
 
     render() {
