@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
 
+import org.apache.catalina.filters.RequestDumperFilter;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.aspectj.AspectJExpressionPointcut;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
@@ -11,9 +12,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurerAdapter;
 import org.springframework.hateoas.hal.Jackson2HalModule;
@@ -21,9 +25,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import org.springframework.transaction.interceptor.NameMatchTransactionAttributeSource;
@@ -39,11 +45,18 @@ import am.ik.home.client.user.UaaUser;
 
 @SpringBootApplication
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableZuulProxy
 public class AccountApplication {
 
 	public static void main(String[] args) {
 
 		SpringApplication.run(AccountApplication.class, args);
+	}
+
+	@Profile("!cloud")
+	@Bean
+	RequestDumperFilter requestDumperFilter() {
+		return new RequestDumperFilter();
 	}
 
 	@Profile("!cloud")
@@ -128,13 +141,26 @@ public class AccountApplication {
 	}
 
 	@Configuration
+	@Order(10)
+	@EnableOAuth2Sso
+	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+		@Override
+		public void configure(HttpSecurity http) throws Exception {
+			http.antMatcher("/**").authorizeRequests().anyRequest().authenticated().and()
+					.csrf()
+					.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+		}
+	}
+
+	@Configuration
 	@EnableResourceServer
 	static class OAuth2ResourceConfig extends ResourceServerConfigurerAdapter {
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			http.sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-					.authorizeRequests().antMatchers(HttpMethod.GET, "/v1/accounts/**")
+					.antMatcher("/v1/**").authorizeRequests()
+					.antMatchers(HttpMethod.GET, "/v1/accounts/**")
 					.access("#oauth2.hasScope('account.read') or #oauth2.hasScope('admin.read')")
 					.antMatchers(HttpMethod.POST, "/v1/accounts/**")
 					.access("#oauth2.hasScope('account.write') or #oauth2.hasScope('admin.write')")
