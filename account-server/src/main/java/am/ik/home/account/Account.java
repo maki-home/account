@@ -28,7 +28,6 @@ public class Account implements Serializable {
 	@GeneratedValue(generator = "uuid")
 	@Column(columnDefinition = "varchar(36)")
 	private String accountId;
-	@NotNull
 	@Convert(converter = Jsr310JpaConverters.LocalDateConverter.class)
 	private LocalDate birthDay;
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

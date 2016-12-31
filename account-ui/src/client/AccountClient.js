@@ -37,12 +37,12 @@ class AccountClient {
         return axios.delete(path + '/' + uuid);
     }
 
-    create(account) {
-        return axios.post(path, account).then(x => x.data);
+    createMe(account) {
+        return axios.post(path + '/me', account).then(x => x.data);
     }
 
-    update(account) {
-        return axios.put(path + '/', account).then(x => x.data);
+    updateMe(account) {
+        return axios.put(path + '/me', account).then(x => x.data);
     }
 }
 

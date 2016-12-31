@@ -1,6 +1,6 @@
 CREATE TABLE account (
   account_id VARCHAR(36) NOT NULL,
-  birth_day  DATE        NOT NULL,
+  birth_day  DATE,
   member_id  VARCHAR(36) NOT NULL,
   PRIMARY KEY (account_id)
 )

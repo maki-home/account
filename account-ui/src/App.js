@@ -1,7 +1,10 @@
 import React, {Component} from "react";
-import {Container, Button, Table, Thead, Tbody, Tr, Th, Td, Title, Subtitle, Modal, Content} from "re-bulma";
+import {Container, Button, Table, Thead, Tbody, Tr, Th, Td, Title, Subtitle} from "re-bulma";
 import _ from "lodash";
+import axios from "axios";
 import "./App.css";
+import AccountData from "./AccountData";
+import AccountForm from "./AccountForm";
 import accountClient from "./client/AccountClient";
 import memberClient from "./client/MemberClient";
 import userinfoClient from "./client/UserinfoClient";
@@ -10,16 +13,35 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            userinfo: {name: {givenName: '', familyName: ''}, email: 'Now Loading...', id: ''},
+            userinfo: {name: {givenName: '', familyName: ''}, email: 'Now Loading...', id: null},
             accounts: [],
-            isOpen: false,
+            loadUserinfo: false,
+            loadAccounts: false,
+            initButton: 'isActive',
         };
         this.fetch = this.fetch.bind(this);
+        this.initAccount = this.initAccount.bind(this);
         this.logout = this.logout.bind(this);
     }
 
     componentDidMount() {
         this.fetch();
+    }
+
+    initAccount() {
+        this.setState({
+            initButton: 'isLoading'
+        });
+        accountClient.createMe({
+            emails: [{
+                purpose: 'Main',
+                emailAddress: this.state.userinfo.email
+            }]
+        })
+            .then(() => this.fetch()
+                .then(() => this.setState({
+                    initButton: 'isActive'
+                })));
     }
 
     fetch() {
@@ -34,24 +56,23 @@ class App extends Component {
                             return a;
                         }), [a => a.member.familyName, a => a.member.givenName]);
                     });
-            });
-        accounts
+            })
             .then(a => {
-                this.setState({accounts: a});
-                console.log(this.state);
+                this.setState({accounts: a, loadAccounts: true});
             })
             .catch(error => {
                 console.error('accounts error!', error);
             });
-        userinfoClient.find()
+        let userinfo = userinfoClient.find()
             .then(userinfo => {
-                this.setState({userinfo: userinfo});
-                console.log(this.state);
+                this.setState({userinfo: userinfo, loadUserinfo: true});
             })
             .catch(error => {
                 console.error('userinfo error!', error);
             });
+        return axios.all([accounts, userinfo]);
     }
+
 
     logout(event) {
         event.preventDefault();
@@ -61,30 +82,38 @@ class App extends Component {
         form._csrf.value = token;
         form.action = '/logout';
         form.method = 'post';
-        console.log(form);
         event.target.submit();
     }
 
     render() {
+        let loaded = this.state.loadAccounts && this.state.loadUserinfo;
+        let me = _.find(this.state.accounts, a => a.member.memberId === this.state.userinfo.id);
+        console.log(me);
+        let showInit = loaded && !me;
         let accounts = this.state.accounts.map(a => {
             let displayName = a.member ? (a.member.familyName + ' ' + a.member.givenName) : '--';
             return (
                 <Tr key={a.accountId}>
                     <Td>{displayName}</Td>
-                    <Td>
-                        <Button color="isPrimary">View</Button>
-                    </Td>
+                    <AccountData account={a}
+                                 isAdmin={me && _.indexOf(me.member.roles, 'ADMIN') >= 0}
+                                 isMe={me === a}
+                                 refreshData={this.fetch}/>
                 </Tr>);
         });
         return (
             <Container>
-                <Title>Account</Title>
+                <Title>アカウント管理</Title>
                 <Subtitle>{this.state.userinfo.name.familyName + ' ' + this.state.userinfo.name.givenName}
                     &nbsp;({this.state.userinfo.email})</Subtitle>
+                <br />
+                {showInit ?
+                    <Button color="isSuccess" onClick={this.initAccount} state={this.state.initButton}>初期登録</Button> :
+                    (me && <AccountForm account={me} refreshData={this.fetch}/>)}
                 <Table isNarrow>
                     <Thead>
                     <Tr>
-                        <Th>Name</Th>
+                        <Th>名前</Th>
                         <Th>&nbsp;</Th>
                     </Tr>
                     </Thead>
@@ -92,21 +121,6 @@ class App extends Component {
                     {accounts}
                     </Tbody>
                 </Table>
-                <div>
-                    <Button onClick={() => this.setState({isOpen: true})}>Open</Button>
-                    <Modal
-                        type="card"
-                        headerContent="Header Content"
-                        footerContent={<div style={{padding: '20px'}}>footercontent</div>}
-                        isActive={this.state.isOpen}
-                        onCloseRequest={() => this.setState({isOpen: false})}>
-                        <Content>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla accumsan, metus ultrices
-                            eleifend gravida, nulla nunc varius lectus, nec rutrum justo nibh eu lectus. Ut vulputate
-                            semper dui. Fusce erat odio, sollicitudin vel erat vel, interdum mattis neque.
-                        </Content>
-                    </Modal>
-                </div>
                 <form onSubmit={this.logout}>
                     <Button>Logout</Button>
                     <input type="hidden" name="_csrf"/>
