@@ -130,14 +130,13 @@ class AccountForm extends Component {
             });
         };
     }
-    
+
     handleAddressChange(field, i) {
-        let target = i;
         let address = this.state.addresses[i];
         return (event) => {
             let addresses = this.state.addresses;
             address[field] = event.target.value;
-            addresses[target] = address;
+            addresses[i] = address;
             this.setState({addresses: addresses});
         };
     }
