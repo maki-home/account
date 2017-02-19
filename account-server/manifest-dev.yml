@@ -1,0 +1,22 @@
+---
+applications:
+  - name: account-dev
+    memory: 1g
+    instances: 1
+    path: target/account-server-0.0.1-SNAPSHOT.jar
+    buildpack: java_buildpack_offline
+    domains:
+      - cfapps.pez.pivotal.io
+    services:
+    - account-db
+    env:
+      auth-server: https://home.cfapps.pez.pivotal.io/uaa
+      security.oauth2.client.client-id: e9d9dc61-895f-4697-bb12-06663e876b81
+      security.oauth2.client.client-secret: 8931fe4c-5bea-45bb-8827-0a7a2d115711
+      zuul.routes.accounts.url: https://account.cfapps.pez.pivotal.io/v1/accounts
+      spring.jpa.show-sql: false
+      management.security.enabled: true
+      logging.level.org.springframework.web.client.RestTemplate: INFO
+      logging.level.org.springframework.security: INFO
+      logging.level.org.apache.http: INFO
+      logging.level.org.apache.http.impl.conn.PoolingHttpClientConnectionManager: INFO
