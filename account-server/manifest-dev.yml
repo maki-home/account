@@ -12,8 +12,8 @@ applications:
     - account-db
     env:
       auth-server: https://home-dev.cfapps.pez.pivotal.io
-      security.oauth2.client.client-id: e9d9dc61-895f-4697-bb12-06663e876b81
-      security.oauth2.client.client-secret: 8931fe4c-5bea-45bb-8827-0a7a2d115711
+      security.oauth2.client.client-id: 00000000-0000-0000-0000-000000000000
+      security.oauth2.client.client-secret: 00000000-0000-0000-0000-000000000000
       zuul.routes.accounts.url: https://account.cfapps.pez.pivotal.io/v1/accounts
       spring.jpa.show-sql: false
       management.security.enabled: true
