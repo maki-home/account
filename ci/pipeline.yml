@@ -38,7 +38,7 @@ resources:
       username: {{cf-username}}
       password: {{cf-password}}
       organization: {{cf-org}}
-      space: {{cf-space}}
+      space: home
       skip_cert_check: true
   - name: cf-dev
     type: cf
@@ -47,7 +47,7 @@ resources:
       username: {{cf-username}}
       password: {{cf-password}}
       organization: {{cf-org}}
-      space: {{cf-space}}
+      space: home-dev
       skip_cert_check: true
   - name: m2
     type: docker-image
