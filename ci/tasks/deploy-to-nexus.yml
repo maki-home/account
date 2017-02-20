@@ -1,0 +1,25 @@
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: making/maven-yarnpkg
+    tag: latest
+inputs:
+  - name: repo
+  - name: utils
+  - name: m2
+outputs:
+  - name: output
+run:
+  path: bash
+  args:
+  - -c
+  - |
+    set -e
+    cd repo/account-ui
+    yarn install
+    cd -
+    utils/scripts/add-repos-in-pom-xml.sh repo && \
+    utils/scripts/add-distribution-management-in-pom-xml-to-nexus.sh repo && \
+    utils/scripts/generate-settings-xml-to-nexus.sh ${NEXUS_USERNAME} ${NEXUS_PASSWORD} repo && \
+    utils/scripts/mvn.sh "deploy -s settings.xml -Dmaven.test.skip=true" repo
