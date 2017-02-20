@@ -7,6 +7,7 @@ applications:
     buildpack: java_buildpack_offline
     domains:
       - cfapps.pez.pivotal.io
+      - ik.am
     services:
     - account-db
     env:
