@@ -14,7 +14,7 @@ applications:
       auth-server: https://home-dev.cfapps.pez.pivotal.io
       security.oauth2.client.client-id: 00000000-0000-0000-0000-000000000000
       security.oauth2.client.client-secret: 00000000-0000-0000-0000-000000000000
-      zuul.routes.accounts.url: https://account.cfapps.pez.pivotal.io/v1/accounts
+      zuul.routes.accounts.url: https://account-dev.cfapps.pez.pivotal.io/v1/accounts
       spring.jpa.show-sql: false
       management.security.enabled: true
       logging.level.org.springframework.web.client.RestTemplate: INFO
