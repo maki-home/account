@@ -6,7 +6,8 @@ applications:
     path: target/account-server-0.0.1-SNAPSHOT.jar
     buildpack: java_buildpack_offline
     domains:
-      - ik.am
+    - ik.am
+    - pezapp.io
     services:
     - account-db
     env:
