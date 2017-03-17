@@ -11,10 +11,10 @@ applications:
     services:
     - account-db
     env:
-      auth-server: https://home.ik.am
+      auth-server: https://home.pezapp.io
       security.oauth2.client.client-id: e9d9dc61-895f-4697-bb12-06663e876b81
       security.oauth2.client.client-secret: 8931fe4c-5bea-45bb-8827-0a7a2d115711
-      zuul.routes.accounts.url: https://account.ik.am/v1/accounts
+      zuul.routes.accounts.url: https://account.pezapp.io/v1/accounts
       spring.jpa.show-sql: false
       management.security.enabled: true
       logging.level.org.springframework.web.client.RestTemplate: INFO
