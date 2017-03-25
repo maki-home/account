@@ -17,7 +17,7 @@ run:
   - -c
   - |
     set -e
-    ln -s `pwd`/node-modules/rootfs `pwd`/repo/account-ui/node_modules
+    # ln -s `pwd`/node-modules/rootfs `pwd`/repo/account-ui/node_modules
     cd repo/account-ui
     yarn install
     cd -
