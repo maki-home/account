@@ -8,6 +8,7 @@ inputs:
   - name: repo
   - name: utils
   - name: m2
+  - name: node-modules
 outputs:
   - name: output
 run:
@@ -17,6 +18,8 @@ run:
   - |
     set -e
     ln -s node-modules/rootfs repo/account-ui/node_modules
+    yarn install
+    cd -
     utils/scripts/add-repos-in-pom-xml.sh repo && \
     utils/scripts/add-distribution-management-in-pom-xml-to-nexus.sh repo && \
     utils/scripts/generate-settings-xml-to-nexus.sh ${NEXUS_USERNAME} ${NEXUS_PASSWORD} repo && \
