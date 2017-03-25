@@ -17,7 +17,7 @@ run:
   - -c
   - |
     set -e
-    ln -s node-modules/rootfs repo/account-ui/node_modules
+    ln -s `pwd`/node-modules/rootfs `pwd`/repo/account-ui/node_modules
     utils/scripts/add-repos-in-pom-xml.sh repo && \
     utils/scripts/add-distribution-management-in-pom-xml-to-nexus.sh repo && \
     utils/scripts/generate-settings-xml-to-nexus.sh ${NEXUS_USERNAME} ${NEXUS_PASSWORD} repo && \
