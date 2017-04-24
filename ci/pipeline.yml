@@ -66,6 +66,37 @@ resources:
     source:
       url: {{slack-webhook-url}}
 jobs:
+  - name: node-modules-cache-init
+    plan:
+    - aggregate:
+      - get: repo
+        resource: repo-dev
+    - task: create-cache
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: making/maven-yarnpkg
+            tag: latest
+        inputs:
+          - name: repo
+        outputs:
+          - name: output
+        run:
+          path: bash
+          args:
+          - -c
+          - |
+            set -e
+            BASEDIR=`pwd`
+            cd repo/account-ui
+            yarn install
+            tar -C node_modules -cf rootfs.tar .
+            mv rootfs.tar ${BASEDIR}/output
+    - put: account-node-modules
+      params:
+        import_file: output/rootfs.tar
   - name: node-modules-cache
     plan:
     - aggregate:
