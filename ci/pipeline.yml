@@ -52,14 +52,15 @@ resources:
   - name: m2
     type: docker-image
     source:
-      repository: making/home-m2
+      repository: registry-192-168-11-210.sslip.io/making/home-m2
+      username: {{nexus-username}}
+      password: {{nexus-password}}
   - name: account-node-modules
     type: docker-image
     source:
-      repository: making/account-node-modules
-      username: {{docker-username}}
-      password: {{docker-password}}
-      email: {{docker-email}}
+      repository: registry-192-168-11-210.sslip.io/making/account-node-modules
+      username: {{nexus-username}}
+      password: {{nexus-password}}
   - name: slack-alert
     type: slack-notification
     source:
